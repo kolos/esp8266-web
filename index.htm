@@ -1,0 +1,344 @@
+<!doctype html>
+
+<html lang="hu">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>ESP8266</title>
+  <style>
+    :root {
+      --keret: grey;
+      --hatter: grey;
+      --belso-hatter: #eee;
+      --content-width: 95%;
+    }
+    
+    @media (min-width: 768px) {
+      :root {
+        --content-width: 310px;
+      }
+    }
+    
+    * {
+      box-sizing: border-box;
+    }
+    body{
+      margin: 4px;
+      font-family: "Segoe UI",Helvetica,Arial,sans-serif;
+      font-size: 14px;
+      line-height: 1.5;
+      color: #444;
+      background: var(--hatter);
+    }
+    #content{
+      background: var(--belso-hatter);
+      margin: auto;
+      width: var(--content-width);
+      border: 1px solid #888;
+      border-radius: 3px;
+      padding: 20px;
+      box-shadow: 0px 0px 10px #888;
+    }
+    #teteje{
+      border-bottom: 2px solid #888;
+    }
+    .tegla{
+      border: 1px solid var(--keret);
+      margin: 50px 0 50px 0;
+      padding: 20px;
+    }
+    .tegla-fej {
+      position: relative;
+      top: -33px;
+      background: var(--belso-hatter);
+      padding: 0 5px 0 5px;
+      color: var(--keret);
+    }
+    li{
+      list-style: none;
+    }
+    .tegla-content {
+      margin-top: -20px;
+    }
+    #alja{
+      margin: auto;
+      width: var(--content-width);
+      margin-top: 30px;
+      font-size: 10px;
+      color: var(--belso-hatter);
+    }
+    hr{
+      border: 1px dotted var(--keret);
+    }
+    #idojaras{
+      float:right;
+      margin: 18.76px 0;
+    }
+    #teteje>h1{
+      display:inline-block;
+    }
+    #pins{
+      display: grid;
+      grid-template-columns: repeat(4, 25%);
+    }
+    .pin{
+      font-size: 10px;
+    }
+    .pin>input{
+      float: right;
+    }
+    #stats{
+      display: inline-block;
+    }
+    #idojaras-also, #idojaras-update {
+      font-size: 8px;
+    }
+  </style>
+
+</head>
+
+<body>
+  <div id="content">
+    <div id="teteje">
+      <h1>Kapcsoló</h1>
+      <span id="idojaras">
+        <div id="idojaras-stat">##</div>
+        <div id="idojaras-also">frissítve: <span id="idojaras-update">##</span></div>
+      </span>
+    </div>
+    <div id="kozepe">
+      <div class="tegla">
+        <span class="tegla-fej">LED</span>
+        <div class="tegla-content">
+          <li>Átvált: <button type="button" data-id="led">KATT.</button>
+        </div>
+      </div>
+      <div class="tegla">
+        <span class="tegla-fej">Kapu nyitás</span>
+        <div class="tegla-content">
+          <li>Autó (2 szárny): <button type="button" data-id="kapu-auto">KATT.</button>
+          <li>Gyalogos (1 szárny): <button type="button" data-id="kapu-gyalog">KATT.</button>
+        </div>
+      </div>
+      <div class="tegla">
+        <span class="tegla-fej">Lámpa</span>
+        <div class="tegla-content">
+          <li>Bekapcs: <button type="button" data-id="lampa-on">KATT.</button>
+          <li>Kikapcs: <button type="button" data-id="lampa-off">KATT.</button>
+        </div>
+      </div>
+      <div class="tegla">
+        <span class="tegla-fej">Locsolás</span>
+        <div class="tegla-content">
+          <li>Időtartam: 
+            <select id="idotartam">
+              <option selected value="10">10 mp</option>
+              <option value="1800">30 perc</option>
+              <option value="3600">1 óra</option>
+            </select>
+            <button type="button" data-id="timer">KATT.</button>
+          <hr>
+          <li>Bekapcs: <button type="button" data-id="relay1-on">KATT.</button>
+          <li>Kikapcs: <button type="button" data-id="relay1-off">KATT.</button>
+          </div>
+      </div>
+      <div class="tegla">
+        <span class="tegla-fej">Relay2</span>
+        <div class="tegla-content">
+          <li>Bekapcs: <button type="button" data-id="relay2-on">KATT.</button>
+          <li>Kikapcs: <button type="button" data-id="relay2-off">KATT.</button>
+        </div>
+      </div>
+      <div class="tegla">
+        <span class="tegla-fej">WoL packet</span>
+        <div class="tegla-content">
+          <li>Küldés: <button type="button" data-id="wakeup">KATT.</button>
+        </div>
+      </div>
+      <div class="tegla">
+        <span class="tegla-fej">STATUS</span>
+        <div class="tegla-content">
+          <div id="pins">
+            <span class="pin">
+              Pin 0: <input type="checkbox" id="pin0" disabled>
+            </span>
+            <span class="pin">
+              Pin 1: <input type="checkbox" id="pin1" disabled>
+            </span>
+            <span class="pin">
+              Pin 2: <input type="checkbox" id="pin2" disabled>
+            </span>
+            <span class="pin">
+              Pin 3: <input type="checkbox" id="pin3" disabled>
+            </span>
+            <span class="pin">
+              Pin 4: <input type="checkbox" id="pin4" disabled>
+            </span>
+            <span class="pin">
+              Pin 5: <input type="checkbox" id="pin5" disabled>
+            </span>
+            <span class="pin">
+              Pin 9: <input type="checkbox" id="pin9" disabled>
+            </span>
+            <span class="pin">
+              Pin 10: <input type="checkbox" id="pin10" disabled>
+            </span>
+            <span class="pin">
+              Pin 12: <input type="checkbox" id="pin12" disabled>
+            </span>
+            <span class="pin">
+              Pin 13: <input type="checkbox" id="pin13" disabled>
+            </span>
+            <span class="pin">
+              Pin 14: <input type="checkbox" id="pin14" disabled>
+            </span>
+            <span class="pin">
+              Pin 15: <input type="checkbox" id="pin15" disabled>
+            </span>
+            <span class="pin">
+              Pin 16: <input type="checkbox" id="pin16" disabled>
+            </span>            
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="alja">
+    <div id="stats">
+      <li>Szerver idő: <span id="ido">##</span>
+      <li>Uptime: <span id="uptime">##</span>
+      <li>Wifi: <span id="wifi">##</span> | VCC: <span id="vcc">##</span>V | Heap: <span id="heap">##</span> B
+    </div>
+    <button type="button" data-id="info" style="float: right">KATT.</button>
+  </div>
+  
+  <script>
+  
+    var ajaxReq = function(method, url, data, callback) {
+      var server_url = "";
+      
+      var request = new XMLHttpRequest();
+      request.open(method, server_url + url, true);
+      request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
+      request.onreadystatechange = function() {
+          if(request.readyState == XMLHttpRequest.DONE && request.status == 200 && typeof callback === "function") {
+              callback(request.response);
+          }
+      }
+      
+      if(data) {
+        var params = new URLSearchParams(data);
+        request.send(params.toString());
+      } else {
+        request.send();
+      }
+    }
+
+
+    var enableButton = function(button) {
+      button.disabled = false;
+    }
+
+    var buttonClickedEvent = function(e) {
+      var buttonElement = this;
+      var id = buttonElement.dataset.id;
+      
+      if(! id) {
+        return;
+      }
+
+      buttonElement.disabled = true;      
+      setTimeout(function(){ enableButton(buttonElement); }, 2000);
+
+      switch(id) {
+        case "info":
+          updatePinStates();
+          break;
+        case "timer":
+          var idotartam = document.getElementById("idotartam");
+          
+          var data = {
+            "seconds": idotartam.options[idotartam.selectedIndex].value,
+          };
+          ajaxReq("POST", "timed", data, function(d) {
+            console.log(d);
+          });
+          break;
+        default:
+          ajaxReq("POST", id, null, function(d) {
+            console.log(d);
+          });
+      }
+    }
+
+
+    var elements = document.getElementsByTagName('button');
+    for(var i = 0, len = elements.length; i < len; i++) {
+        elements[i].onclick = buttonClickedEvent;
+    }
+    
+    var getDateStringFromTimeSeconds = function(timestamp) {
+      var ido = new Date(1000 * timestamp);        
+      return ido.getFullYear() + "-" + ("0"+(ido.getMonth()+1)).slice(-2) + "-" + ("0" + ido.getDate()).slice(-2) + " " + ("0" + ido.getHours()).slice(-2) + ":" + ("0" + ido.getMinutes()).slice(-2) + ":" + ("0" + ido.getSeconds()).slice(-2);
+    }
+    
+    var getUptimeStringFromSeconds = function(seconds) {
+      var day, hour, minute;
+
+      minute = Math.floor(seconds / 60);
+      seconds = seconds % 60;
+      hour = Math.floor(minute / 60);
+      minute = minute % 60;
+      day = Math.floor(hour / 24);
+      hour = hour % 24;
+      
+      return hour + "h" + day + "d" + minute + "m" + seconds + "s";
+    }
+    
+    var getWifiPercentageStringFromRssi = function(rssi) {
+      return (2 * (rssi + 100)) + " %";
+    }
+    
+    var getWeatherStatusString = function(homerseklet, eso_1ora, eso_ma) {
+      return homerseklet + "°C, eső: " + eso_ma + "mm";
+    }
+    
+    var getVccFromData = function(vcc) {
+      return (vcc / 1024).toFixed(2);
+    }
+    
+    var getHeapFromData = function(heap) {
+      return heap;
+    }
+    
+    var updatePinStates  = function() {
+      ajaxReq("GET", "info", null, function(d) {
+        var data = JSON.parse(d);
+        
+        for(var i = 0; i<16; i++) {
+          var pinVal = !((data.pins >> i) & 1);
+          
+          var checkboxElement = document.getElementById("pin" + i);
+          if(checkboxElement) {
+            checkboxElement.checked = pinVal;
+          }
+        }
+        
+        document.getElementById("idojaras-stat").innerHTML = getWeatherStatusString(data.hom, data.eso_1ora, data.eso_ma);
+        document.getElementById("idojaras-update").innerHTML = getDateStringFromTimeSeconds(data.weather_updated);
+        
+        
+        document.getElementById("ido").innerHTML = getDateStringFromTimeSeconds(data.time);
+        document.getElementById("uptime").innerHTML = getUptimeStringFromSeconds(data.uptime);
+        document.getElementById("wifi").innerHTML = getWifiPercentageStringFromRssi(data.wifi);
+        document.getElementById("vcc").innerHTML = getVccFromData(data.vcc);
+        document.getElementById("heap").innerHTML = getHeapFromData(data.heap);
+      });
+    }
+    
+    window.onload = function() {
+      updatePinStates();
+    }
+  </script>
+</body>
+</html>
