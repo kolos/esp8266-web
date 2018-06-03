@@ -93,6 +93,18 @@
     #idojaras-also, #idojaras-update {
       font-size: 8px;
     }
+    .napok td{
+      text-align: center;
+      font-size: 8px;
+    }
+    
+    .centered {
+      text-align: center;
+    }
+    
+    .hidden {
+      display: none;
+    }
   </style>
 
 </head>
@@ -121,38 +133,123 @@
         </div>
       </div>
       <div class="tegla">
-        <span class="tegla-fej">Lámpa</span>
+        <span class="tegla-fej">Távirányító</span>
         <div class="tegla-content">
-          <li>Bekapcs: <button type="button" data-id="lampa-on">KATT.</button>
-          <li>Kikapcs: <button type="button" data-id="lampa-off">KATT.</button>
+          <table style="width: 100%;">
+            <tr>
+              <td>Lámpa</td>
+              <td>
+                <button type="button" data-id="lampa-on">Bekapcs</button>
+              </td>
+              <td>
+                <button type="button" data-id="lampa-off">Kikapcs</button>
+              </td>
+            </tr>
+          </table>
         </div>
       </div>
       <div class="tegla">
-        <span class="tegla-fej">Locsolás</span>
+        <span class="tegla-fej">Relék</span>
         <div class="tegla-content">
-          <li>Időtartam: 
-            <select id="idotartam">
-              <option selected value="10">10 mp</option>
-              <option value="1800">30 perc</option>
-              <option value="3600">1 óra</option>
-            </select>
-            <button type="button" data-id="timer">KATT.</button>
-          <hr>
-          <li>Bekapcs: <button type="button" data-id="relay1-on">KATT.</button>
-          <li>Kikapcs: <button type="button" data-id="relay1-off">KATT.</button>
+          <table style="width: 100%;">
+            <tr>
+              <td>Relay1</td>
+              <td>
+                <button type="button" data-id="relay1-on">Bekapcs</button>
+              </td>
+              <td>
+                <button type="button" data-id="relay1-off">Kikapcs</button>
+              </td>
+            </tr>
+            <tr>
+              <td>Relay2</td>
+              <td>
+                <button type="button" data-id="relay2-on">Bekapcs</button>
+              </td>
+              <td>
+                <button type="button" data-id="relay2-off">Kikapcs</button>
+              </td>
+            </tr>
+          </table>
           </div>
-      </div>
-      <div class="tegla">
-        <span class="tegla-fej">Relay2</span>
-        <div class="tegla-content">
-          <li>Bekapcs: <button type="button" data-id="relay2-on">KATT.</button>
-          <li>Kikapcs: <button type="button" data-id="relay2-off">KATT.</button>
-        </div>
       </div>
       <div class="tegla">
         <span class="tegla-fej">WoL packet</span>
         <div class="tegla-content">
           <li>Küldés: <button type="button" data-id="wakeup">KATT.</button>
+        </div>
+      </div>
+      <div class="tegla">
+        <span class="tegla-fej">Időzítő</span>
+        <div class="tegla-content">
+          <table>
+            <tr>
+              <td>Napok:</td>
+              <td>
+                <table width="100%">
+                  <tr class="napok">
+                    <td>Hé</td>
+                    <td>Ke</td>
+                    <td>Sze</td>
+                    <td>Cs</td>
+                    <td>Pé</td>
+                    <td>Szo</td>
+                    <td>Va</td>
+                  </tr>
+                  <tr>
+                    <td><input type="checkbox" id="napok2" checked></td>
+                    <td><input type="checkbox" id="napok3" checked></td>
+                    <td><input type="checkbox" id="napok4" checked></td>
+                    <td><input type="checkbox" id="napok5" checked></td>
+                    <td><input type="checkbox" id="napok6" checked></td>
+                    <td><input type="checkbox" id="napok7" checked></td>
+                    <td><input type="checkbox" id="napok1" checked></td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            <tr>
+              <td>Idő:</td>
+              <td>
+                <input id="timer.start_hour" value="12" style="width: 50px" min=0 max=23 type="number">
+                :
+                <input id="timer.start_minute" value="0" style="width: 50px" min=0 max=59 type="number">
+              </td>
+            </tr>
+            <tr>
+              <td>Időtartam:</td>
+              <td>
+                <input id="timer.operating_minutes" value="30" style="width: 50px" min=1 type="number"> perc
+              </td>
+            </tr>
+            <tr>
+              <td>Pin:</td>
+              <td>
+                <select id="timer.pin">
+                  <option value="2">D4 - LED</option>
+                  <option value="14">D5 - Relay1</option>
+                  <option value="12">D6 - Relay2</option>
+                </select>
+              </td>
+            </tr>
+            <tr>
+              <td colspan=2 align=center>
+                <button type="button" data-id="scheduler">Save</button>
+                <button type="button" data-id="scheduler_reset">Reset</button>
+                <button type="button" data-id="scheduler_store">Store</button>
+              <td>
+            </tr>
+          </table>          
+          <div id="timer_table"></div>
+        </div>
+      </div>
+      <div class="tegla">
+        <span class="tegla-fej">Upload</span>
+        <div class="tegla-content">
+          <form method="post" enctype="multipart/form-data" action="/upload_file">
+              <input type="file" name="name">
+              <input type="submit">
+          </form>
         </div>
       </div>
       <div class="tegla">
@@ -205,9 +302,9 @@
   </div>
   <div id="alja">
     <div id="stats">
-      <li>Szerver idő: <span id="ido">##</span>
-      <li>Uptime: <span id="uptime">##</span>
-      <li>Wifi: <span id="wifi">##</span> | VCC: <span id="vcc">##</span>V | Heap: <span id="heap">##</span> B
+      <li>Szerver idő: <span id="ido">##</span> | Hőmérséklet: <span id="belso_hom">##</span>°C
+      <li>Wifi: <span id="wifi">##</span> - <span id="wifi_ssid">##</span>
+      <li>Uptime: <span id="uptime">##</span> | VCC: <span id="vcc">##</span>V | Heap: <span id="heap">##</span> B
     </div>
     <button type="button" data-id="info" style="float: right">KATT.</button>
   </div>
@@ -215,7 +312,7 @@
   <script>
   
     var ajaxReq = function(method, url, data, callback) {
-      var server_url = "";
+      var server_url = window.location.hostname ? "" : "http://kapcsolo/";
       
       var request = new XMLHttpRequest();
       request.open(method, server_url + url, true);
@@ -254,14 +351,27 @@
         case "info":
           updatePinStates();
           break;
-        case "timer":
-          var idotartam = document.getElementById("idotartam");
+        case "scheduler":
+          if(getDayOfWeekByte() == 0) break;
+
+          var tmpDate = new Date();
+          tmpDate.setHours(getValFromId("timer.start_hour"));
+          tmpDate.setMinutes(getValFromId("timer.start_minute"));
           
           var data = {
-            "seconds": idotartam.options[idotartam.selectedIndex].value,
+            "day_of_week": getDayOfWeekByte(),
+            "start_hour": tmpDate.getUTCHours(),
+            "start_minute": tmpDate.getUTCMinutes(),
+            "operating_minutes": getValFromId("timer.operating_minutes"),
+            "pin": getValFromId("timer.pin"),
           };
-          ajaxReq("POST", "timed", data, function(d) {
-            console.log(d);
+          ajaxReq("POST", "scheduler", data, function(d) {
+            updatePinStates();
+          });
+          break;
+        case "scheduler_reset":
+          ajaxReq("POST", "scheduler_reset", data, function(d) {
+            updatePinStates();
           });
           break;
         default:
@@ -277,9 +387,49 @@
         elements[i].onclick = buttonClickedEvent;
     }
     
+    var getDayOfWeekByte = function() {
+      var tmp = 0;
+      for(var i=1; i<= 7; i++) {
+        tmp |= getCheckedValueElementId("napok" + i) << i;
+      }
+      
+      return tmp;
+    }
+    var getDayStringFromDayOfWeekByte = function(_byte) {
+      if(_byte == 254) return "Mind";
+      var tmp = [];
+      var days = {
+        "Hé": 2,
+        "Ke": 3,
+        "Sze": 4,
+        "Cs": 5,
+        "Pé": 6,
+        "Szo": 7,
+        "Va": 1
+      };
+      
+      Object.keys(days).forEach(function(d) {
+        if((_byte & (1 << days[d])) != 0) {
+          tmp.push(d);
+        }
+      });
+      
+      return tmp.join(", ");
+    }
+    
     var getDateStringFromTimeSeconds = function(timestamp) {
       var ido = new Date(1000 * timestamp);        
       return ido.getFullYear() + "-" + ("0"+(ido.getMonth()+1)).slice(-2) + "-" + ("0" + ido.getDate()).slice(-2) + " " + ("0" + ido.getHours()).slice(-2) + ":" + ("0" + ido.getMinutes()).slice(-2) + ":" + ("0" + ido.getSeconds()).slice(-2);
+    }
+    
+    var getValFromId = function(element_id) {
+      var element = document.getElementById(element_id);
+
+      return element.value;
+    }
+    
+    var getCheckedValueElementId = function(element_id) {
+      return document.getElementById(element_id).checked ? 1 : 0;
     }
     
     var getUptimeStringFromSeconds = function(seconds) {
@@ -292,7 +442,7 @@
       day = Math.floor(hour / 24);
       hour = hour % 24;
       
-      return hour + "h" + day + "d" + minute + "m" + seconds + "s";
+      return day + "d" + hour + "h" + minute + "m" + seconds + "s";
     }
     
     var getWifiPercentageStringFromRssi = function(rssi) {
@@ -324,6 +474,24 @@
           }
         }
         
+        var timer_table = "<table width=\"100%\"><tr><th>Napok</th><th>Kezd</th><th>Tartam</th><th>Pin</th></tr>";
+        data.timers.filter(function(d) { return d;}).forEach(function(timer) {
+          var tmpDate = new Date();
+          tmpDate.setUTCHours(timer.start_hour);
+          tmpDate.setUTCMinutes(timer.start_minute);
+          
+          timer_table += "<tr>";
+          timer_table += "<td class=\"centered\" style=\"font-size: 12px\">" + getDayStringFromDayOfWeekByte(timer.day_of_week) + "</td>";
+          timer_table += "<td class=\"centered\">" + ("0" + tmpDate.getHours()).slice(-2) + ":" + ("0" + tmpDate.getMinutes()).slice(-2) + "</td>";
+          timer_table += "<td class=\"centered\">" + timer.operating_minutes + "<span style=\"font-size: 10px\">perc</span></td>";
+          timer_table += "<td class=\"centered\">" + getPinName(timer.pin) + "</td>";
+          //timer_table += "<td>" + (timer.enabled ? "✔️" : "❌") + "</td>";
+          timer_table += "</tr>";
+        });
+        timer_table += "</table>";
+        document.getElementById("timer_table").innerHTML = timer_table;
+        
+        
         document.getElementById("idojaras-stat").innerHTML = getWeatherStatusString(data.hom, data.eso_1ora, data.eso_ma);
         document.getElementById("idojaras-update").innerHTML = getDateStringFromTimeSeconds(data.weather_updated);
         
@@ -331,9 +499,29 @@
         document.getElementById("ido").innerHTML = getDateStringFromTimeSeconds(data.time);
         document.getElementById("uptime").innerHTML = getUptimeStringFromSeconds(data.uptime);
         document.getElementById("wifi").innerHTML = getWifiPercentageStringFromRssi(data.wifi);
+        document.getElementById("wifi_ssid").innerHTML = data.wifi_ssid;
+        document.getElementById("belso_hom").innerHTML = data.belso_hom;
         document.getElementById("vcc").innerHTML = getVccFromData(data.vcc);
         document.getElementById("heap").innerHTML = getHeapFromData(data.heap);
       });
+    }
+
+    var pin_names = {
+      16: "D0",
+      5: "D1",
+      4: "D2",
+      0: "D3",
+      2: "D4",
+      14: "D5",
+      12: "D6",
+      13: "D7",
+      15: "D8",
+      3: "D9",
+      1: "D10",
+    };
+    
+    function getPinName(pin) {
+      return pin_names[pin];
     }
     
     window.onload = function() {
