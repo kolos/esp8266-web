@@ -47,9 +47,23 @@
       margin: 50px 0 50px 0;
       padding: 20px;
     }
+    .fel-tegla{
+      width: calc(50% - 20px);
+      border: 1px solid var(--keret);
+      margin: 50px 0 0 10px;
+      padding: 20px;
+      float: left;
+    }
     .tegla-fej {
       position: relative;
       top: -33px;
+      background: var(--belso-hatter);
+      padding: 0 5px 0 5px;
+      color: var(--keret);
+    }
+    .tegla-lab {
+      position: relative;
+      bottom: 5px;
       background: var(--belso-hatter);
       padding: 0 5px 0 5px;
       color: var(--keret);
@@ -105,6 +119,27 @@
     .hidden {
       display: none;
     }
+    
+    #toast {
+      position: fixed;
+      top: 5px;
+      right: 5px;
+      width: 200px;
+      background-color: var(--belso-hatter);
+      display: none;
+      padding: 5px;
+      border: 1px solid black;
+      border-radius: 3px;
+      box-shadow: 0px 0px 10px #888;
+    }
+    
+    #wattValue,#wattValue2, #homerseklet_tegla, #homerseklet2_tegla{
+      font-size: 2.3em;
+    }
+    .hourlyWattValue {
+      padding: 0 2px;
+      font-weight: bold;
+    }
   </style>
 
 </head>
@@ -119,6 +154,74 @@
       </span>
     </div>
     <div id="kozepe">
+      <div class="fel-tegla">
+        <span class="tegla-fej">Fogyasztás</span>
+        <div class="tegla-content">
+          <span id="wattValue2">##</span>W
+        </div>
+        <span class="tegla-lab">Normál</span>
+      </div>
+      <div class="fel-tegla">
+        <span class="tegla-fej">Fogyasztás</span>
+        <div class="tegla-content">
+          <span id="wattValue">##</span>W
+        </div>
+        <span class="tegla-lab">Kedv.</span>
+      </div>
+      <div style="clear:both"></div>
+
+      <div class="fel-tegla">
+        <span class="tegla-fej">Hőmérséklet</span>
+        <div class="tegla-content">
+          <span id="homerseklet_tegla">##</span>°C
+        </div>
+        <span class="tegla-lab">Villanyóra</span>
+      </div>
+      <div class="fel-tegla">
+        <span class="tegla-fej">Hőmérséklet</span>
+        <div class="tegla-content">
+          <span id="homerseklet2_tegla">##</span>°C
+        </div>
+        <span class="tegla-lab">Pince</span>
+      </div>
+      <div style="clear:both"></div>
+      <div class="tegla">
+        <span class="tegla-fej">Fogyasztás ebben az órában</span>
+        <div class="tegla-content">
+          <table>
+            <tr>
+              <td></td>
+              <td colspan=2>Normál</td>
+              <td colspan=2>Kedv.</td>
+              <td></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>Eddig:</td>
+              <td align="right"><span id="curHourWatt2Value" class="hourlyWattValue">##</span></td>
+              <td>Wh</td>
+              <td align="right"><span id="curHourWattValue" class="hourlyWattValue">##</span></td>
+              <td>Wh</td>
+              <td align="right"><span id="elapsedTimeMinutes" class="hourlyWattValue">##</span></td>
+              <td>perc</td>
+            </tr>
+            <tr>
+              <td>Tegnap:</td>
+              <td align="right"><span id="yesterdaysHourWatt2Value" class="hourlyWattValue">##</span></td>
+              <td>Wh</td>
+              <td align="right"><span id="yesterdaysHourWattValue" class="hourlyWattValue">##</span></td>
+              <td>Wh</td>
+            </tr>
+            <tr>
+              <td>Tegnapel.:</td>
+              <td align="right"><span id="daybeforeHourWatt2Value" class="hourlyWattValue">##</span></td>
+              <td>Wh</td>
+              <td align="right"><span id="daybeforeHourWattValue" class="hourlyWattValue">##</span></td>
+              <td>Wh</td>
+            </tr>
+          </table>
+        </div>
+      </div>
       <div class="tegla">
         <span class="tegla-fej">LED</span>
         <div class="tegla-content">
@@ -308,14 +411,16 @@
     </div>
     <button type="button" data-id="info" style="float: right">KATT.</button>
   </div>
+  <div id="toast">
+    <div id="message_box">###</div>
+  </div>
   
   <script>
-  
+    var server_hostname = window.location.hostname ? window.location.hostname : "kapcsolo";
     var ajaxReq = function(method, url, data, callback) {
-      var server_url = window.location.hostname ? "" : "http://kapcsolo/";
       
       var request = new XMLHttpRequest();
-      request.open(method, server_url + url, true);
+      request.open(method, "http://" + server_hostname + "/" + url, true);
       request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
       request.onreadystatechange = function() {
           if(request.readyState == XMLHttpRequest.DONE && request.status == 200 && typeof callback === "function") {
@@ -474,6 +579,25 @@
           }
         }
         
+        var elapsedTimePercent = ((data.uptime) % (60 * 60)) / (60 * 60);
+        var wattNow = data.lights[getShiftedHour(data.uptime, 0)];
+        var watt2Now = data.lights2[getShiftedHour(data.uptime, 0)];
+        var wattYesterday = data.lights[getShiftedHour(data.uptime, -24)];
+        var watt2Yesterday = data.lights2[getShiftedHour(data.uptime, -24)];
+        var wattDayBefore = data.lights[getShiftedHour(data.uptime, -48)];
+        var watt2DayBefore = data.lights2[getShiftedHour(data.uptime, -48)];
+        
+        document.getElementById("elapsedTimeMinutes").innerHTML = Math.round(elapsedTimePercent * 60, 0); // Date.getMinutes();
+        
+        document.getElementById("curHourWattValue").innerHTML = wattNow;
+        document.getElementById("curHourWatt2Value").innerHTML = watt2Now;
+        
+        document.getElementById("yesterdaysHourWattValue").innerHTML = wattYesterday;
+        document.getElementById("yesterdaysHourWatt2Value").innerHTML = watt2Yesterday;
+
+        document.getElementById("daybeforeHourWattValue").innerHTML = wattDayBefore;
+        document.getElementById("daybeforeHourWatt2Value").innerHTML = watt2DayBefore;
+                        
         var timer_table = "<table width=\"100%\"><tr><th>Napok</th><th>Kezd</th><th>Tartam</th><th>Pin</th></tr>";
         data.timers.filter(function(d) { return d;}).forEach(function(timer) {
           var tmpDate = new Date();
@@ -500,10 +624,43 @@
         document.getElementById("uptime").innerHTML = getUptimeStringFromSeconds(data.uptime);
         document.getElementById("wifi").innerHTML = getWifiPercentageStringFromRssi(data.wifi);
         document.getElementById("wifi_ssid").innerHTML = data.wifi_ssid;
-        document.getElementById("belso_hom").innerHTML = data.belso_hom;
+        document.getElementById("belso_hom").innerHTML = data.temp[0];
+        document.getElementById("homerseklet_tegla").innerHTML = getHomerseklet(data.temp[0]);
+        document.getElementById("homerseklet2_tegla").innerHTML = getHomerseklet(data.temp[1]);
         document.getElementById("vcc").innerHTML = getVccFromData(data.vcc);
         document.getElementById("heap").innerHTML = getHeapFromData(data.heap);
       });
+    }
+    
+    var getHomerseklet = function(temp) {
+      if(temp)
+        return Math.round(temp, 1); 
+      
+      return "N/A";
+    }
+    
+    var updateWattMeter = function(msg) {
+      var newPowerledBlinked = msg["lightDetected"];
+      
+      var consumption = 3600*1000 / (newPowerledBlinked - powerledBlinked); // Watt
+      
+      if(powerledBlinked) {
+        document.getElementById("wattValue").innerHTML = Math.round(consumption, 0);
+      }
+      
+      powerledBlinked = newPowerledBlinked;
+    }
+    
+    var updateWattMeter2 = function(msg) {
+      var newPowerledBlinked = msg["light2Detected"];
+      
+      var consumption = 3600*1000 / (newPowerledBlinked - powerled2Blinked); // Watt
+      
+      if(powerled2Blinked) {
+        document.getElementById("wattValue2").innerHTML = Math.round(consumption, 0);
+      }
+      
+      powerled2Blinked = newPowerledBlinked;
     }
 
     var pin_names = {
@@ -520,13 +677,54 @@
       1: "D10",
     };
     
+    var powerledBlinked = null;
+    var powerled2Blinked = null;
+    
     function getPinName(pin) {
       return pin_names[pin];
     }
     
     window.onload = function() {
       updatePinStates();
+      setInterval(updatePinStates, 5 * 60 * 1000);
     }
+    var toast_timeout = null;
+    var ws = new WebSocket('ws://' + server_hostname + ':81/', ['arduino']);
+    ws.onopen = function () { ws.send('Connected @ ' + new Date()); };
+    ws.onerror = function (error) { console.log('WebSocket Error ', error);};
+    ws.onmessage = function (e) { 
+      var msg = JSON.parse(e.data);
+      
+      if(("light2Detected" in msg) || ("lightDetected" in msg)) {
+        if("light2Detected" in msg) {
+          updateWattMeter2(msg);
+        }
+        
+        if("lightDetected" in msg) {
+          updateWattMeter(msg);
+        }
+      } else {
+        var text = "";
+        Object.keys(msg).forEach(function(msg_key) {
+          text += msg_key + ": <b>" + msg[msg_key] + "</b>;"
+        });
+        
+        document.getElementById("message_box").innerHTML = text;
+        document.getElementById("toast").style.display = "block";
+
+        if(toast_timeout) clearTimeout(toast_timeout);
+        
+        toast_timeout = setTimeout(function(){ document.getElementById("toast").style.display = "none"; }, 3000);
+      }
+    };
+    
+    var getShiftedHour = function(startTime, hourOffset) {
+      return (parseInt(startTime / 60 / 60) + hourOffset).mod(72);
+    }
+    
+    Number.prototype.mod = function(n) {
+        return ((this%n)+n)%n;
+    };
   </script>
 </body>
 </html>
